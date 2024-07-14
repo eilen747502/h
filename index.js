@@ -4,6 +4,9 @@ const cors = require("cors");
 const morgan = require("morgan");
 const { init: initDB, Counter } = require("./db");
 
+const axios = require('axios');
+let https = require("https");
+
 const logger = morgan("tiny");
 
 const app = express();
@@ -15,6 +18,49 @@ app.use(logger);
 // 首页
 app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// http://localhost/login?code=0a33IH0w3eU6933dFX3w39qLSg23IH0B
+// https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
+app.get("/api/login", async (req, res) => {
+  const query = req.query
+  // console.log(query);
+
+  // res.send({
+  //   code: 0,
+  //   data: query,
+  // });
+  // req.query
+  // const url = 'https://api.weixin.qq.com/sns/jscode2session?grant_type=authorization_code&appid=wx8262bd6aafe26dd8&secret=secret&js_code='+query.code
+
+  // https.get(url, (d) => {
+  //   console.log('返回的信息: ', d);
+  //   res.send({
+  //     code: 0,
+  //     data: JSON.parse(d),
+  //   });
+  // })
+
+
+  axios.get('https://api.weixin.qq.com/sns/jscode2session', {
+    appid: 'wx8262bd6aafe26dd8',
+    secret: 'acdcbf05ca2bde5aab7a0395c294e7b9',
+    js_code: query.code,
+    grant_type: 'authorization_code',
+  })
+  .then(function (response) {
+    // console.log(response.session_key);
+    res.send({
+      code: 0,
+      data: response,
+    });
+  })
+  .catch(function (error) {
+
+  })
+  .finally(function () {
+
+  });
 });
 
 // 更新计数
